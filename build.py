@@ -13,6 +13,7 @@ import os
 import shutil
 
 import file_expander
+import re
 
 transcrypt_arguments = ['-n', '-p', '.none']
 transcrypt_dirty_args = transcrypt_arguments + []
@@ -165,9 +166,9 @@ class Configuration:
     def source_dir(self):
         """:rtype: str"""
         if self.flatten:
-            return os.path.join(self.base_dir, 'src', '__py_build__')
+            return os.path.join(self.base_dir, 'build', '__py_build__')
         else:
-            return os.path.join(self.base_dir, 'src')
+            return os.path.join(self.base_dir, 'build')
 
 
 def load_config(base_dir):
@@ -418,6 +419,142 @@ def install_node_dependencies(config):
                         .format(ret, "' '".join(install_args), config.base_dir))
 
 
+def patch(config):
+    print('Replacing bad monkeypatches...')
+    dist_dir = os.path.join(config.base_dir, 'dist')
+    for file_name in os.listdir(dist_dir):
+        if file_name == 'main.js':
+            file_str = None
+            # there will be an error if there's non latin alphabet in the files when encoding is not set to utf8
+            with open(os.path.join(dist_dir, file_name), 'r', encoding='utf8') as f:
+                file_str = f.read()
+            while 'Array.prototype.' in file_str:
+                location = file_str.find('Uint8Array.prototype.')
+                if location != -1:
+                    before_str = file_str[:location]
+                    after_str = file_str[location + 21:]
+                    function_location = after_str.find('function')
+                    semi_location = after_str.find(';')
+                    if function_location < semi_location:
+                        location = after_str.find(' ')
+                        f_name = after_str[:location]
+                        location = after_str.find('function')
+                        after_str = after_str[location:]
+                        before_str += "Object.defineProperty(Uint8Array.prototype, '" + f_name + "', {value: "
+                        location = after_str.find('{')
+                        before_str += after_str[:location + 1]
+                        after_str = after_str[location + 1:]
+                        num_braces = 1
+                        while num_braces > 0:
+                            open_location = after_str.find('{')
+                            close_location = after_str.find('}')
+                            if open_location < close_location:
+                                num_braces += 1
+                                before_str += after_str[:open_location + 1]
+                                after_str = after_str[open_location + 1:]
+                            else:
+                                num_braces -= 1
+                                before_str += after_str[:close_location + 1]
+                                after_str = after_str[close_location + 1:]
+                        if after_str[0] == ';':
+                            file_str = before_str + '})' + after_str
+                        else:
+                            file_str = before_str + '});\n' + after_str
+                    else:
+                        file_str = before_str + 'PLACEHOLDER_1' + after_str
+                else:
+                    location = file_str.find('Array.prototype.')
+                    before_str = file_str[:location]
+                    after_str = file_str[location + 16:]
+                    function_location = after_str.find('function')
+                    semi_location = after_str.find(';')
+                    if function_location < semi_location:
+                        location = after_str.find(' ')
+                        f_name = after_str[:location]
+                        location = after_str.find('function')
+                        after_str = after_str[location:]
+                        before_str += "Object.defineProperty(Array.prototype, '" + f_name + "', {value: "
+                        location = after_str.find('{')
+                        before_str += after_str[:location + 1]
+                        after_str = after_str[location + 1:]
+                        num_braces = 1
+                        while num_braces > 0:
+                            open_location = after_str.find('{')
+                            close_location = after_str.find('}')
+                            if open_location < close_location:
+                                num_braces += 1
+                                before_str += after_str[:open_location + 1]
+                                after_str = after_str[open_location + 1:]
+                            else:
+                                num_braces -= 1
+                                before_str += after_str[:close_location + 1]
+                                after_str = after_str[close_location + 1:]
+                        if after_str[0] == ';':
+                            file_str = before_str + '})' + after_str
+                        else:
+                            file_str = before_str + '});\n' + after_str
+                    else:
+                        file_str = before_str + 'PLACEHOLDER_2' + after_str
+            while 'PLACEHOLDER_1' in file_str:
+                location = file_str.find('PLACEHOLDER_1')
+                file_str = file_str[:location] + 'Uint8Array.prototype.' + file_str[location + 13:]
+            while 'PLACEHOLDER_2' in file_str:
+                location = file_str.find('PLACEHOLDER_2')
+                file_str = file_str[:location] + 'Array.prototype.' + file_str[location + 13:]
+            location = file_str.find('Array.prototype.__rmul__ = Array.prototype.__mul__;')
+            file_str = file_str[:location] + file_str[location + 51:]
+            location = file_str.find('Array.prototype.__class__ = list;')
+            file_str = file_str[:location] + file_str[location + 33:]
+            location = file_str.find('Array.prototype.__str__ = Array.prototype.__repr__;')
+            file_str = file_str[:location] + file_str[location + 51:]
+            location = file_str.find('Uint8Array.prototype.__rmul__ = Uint8Array.prototype.__mul__;')
+            file_str = file_str[:location] + file_str[location + 61:]
+            print('Unifying globals...')
+            #If you have additional globals you want to unify across files, add them here.
+            while 'Cache$1' in file_str:
+                location = file_str.find('Cache$1')
+                file_str = file_str[:location] + 'Cache' + file_str[location + 7:]
+            while 'iMemory$1' in file_str:
+                location = file_str.find('iMemory$1')
+                file_str = file_str[:location] + 'iMemory' + file_str[location + 9:]
+            with open(os.path.join(dist_dir, file_name), 'w', encoding='utf8') as f:
+                f.write(file_str)
+
+def pre_patch(config):
+    print('Fixing array/object writes...')
+    src_dir = os.path.join(config.base_dir, 'src')
+    patch_dir = os.path.join(config.base_dir, 'build')
+    for name in os.listdir(patch_dir):
+        if not name in ['__pycache__', '__target__', 'defs']:
+            os.remove(os.path.join(patch_dir, name))
+    for name in os.listdir(src_dir):
+        if not name in ['__pycache__', '__target__', 'defs']:
+            source = os.path.join(src_dir, name)
+            dest = os.path.join(patch_dir, name)
+            shutil.copy2(source, dest)
+    for file_name in os.listdir(patch_dir):
+        if not file_name in ['__pycache__', '__target__', 'defs']:
+            file_str = None
+            # there will be an error if there's non latin alphabet in the files when encoding is not set to utf8
+            with open(os.path.join(patch_dir, file_name), 'r', encoding='utf8') as f:
+                file_str = f.read()
+            while True:
+                match = re.search(r'''(\n\s*)([^('"\n#]+\[.+\]\s*[+\-*/%]?=[^\n=]*)(\n)''', file_str)
+                if match == None:
+                    break
+                inside = match.group(2)
+                inside = re.sub('None', 'null', inside)
+                inside = re.sub('True', 'true', inside)
+                inside = re.sub('False', 'false', inside)
+                while True:
+                    sub_match = re.search(r'''len\s*\(([^()]+)\)''', inside)
+                    if sub_match == None:
+                        break
+                    inside = inside[:sub_match.span()[0]] + sub_match.group(1) + '.length' + inside[sub_match.span()[1]:]
+                file_str = file_str[:match.span()[0]] + match.group(1) + '__pragma__("js", "{}", """' + inside + ';""")' + match.group(3) + file_str[match.span()[1]:]
+            with open(os.path.join(patch_dir, file_name), 'w', encoding='utf8') as f:
+                f.write(file_str)
+
 
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -429,7 +566,9 @@ def main():
         expander_control = file_expander.FileExpander(base_dir)
         expander_control.expand_files()
 
+    pre_patch(config)
     build(config)
+    patch(config)
     upload(config)
 
 
