@@ -1,5 +1,28 @@
-screeps-starter-python
+screeps_starter_python
 ======================
+This is my updated and streamlined version of daboross's screeps-starter-python repo. This is very much built on his work, but I added a bit of stuff on top that will hopefully make things much nicer for those interested in playing Screeps with Python.
+
+## Contact
+
+If you hop into the #python channel in the Screeps official Discord, I'll be happy to answer any questions there.
+
+## Changes
+
+In the version I forked from, it's often necessary to use Transcrypt pragmas to tell it to treat certain lines of code as raw Javascript, since those lines get removed or otherwise don't work otherwise. In my edited build.py, it pre-patches your code before Transcrypt to add those lines where it thinks you will need them. This may cause unexpected behavior in some cases, but it should make things much less clunky in the majority of cases. If you run into any cases where it doesn't work properly, let me know and I'll see what I can do about fixing that.
+
+In addition to that pre-patching, it also patches up the JS code that Transcrypt produces, replacing some bad monkeypatches (edits to built-in objects) with ones that are formatted better. With the original bad monkeypatches, it caused some of Screep's own built-in methods to malfunction. It also unifies the global variable "Cache" across the two modules of the example bot. This unification code can be extended to apply to additional globals and modules, but I left it at just Cache for the starter.
+
+The actual starter bot itself is replaced as well, being slightly more advanced, but still very much a starter. It will spawn three creep roles - miners, haulers, and workers. It will not place any structures, but it will build and maintain ones you place, as well as using extensions and source containers.
+
+## Tips
+
+When following the setup guide, make sure you install version 17.9.1 of Node.js, not any newer version. Newer versions will not work because their version of NPM is not compatible. Also, when you get to the repository setup step, use this command instead to clone this repository rather than the parent:
+
+git clone https://github.com/DroidFreak36/screeps_starter_python.git
+
+Be sure to check the syntax changes part of [The Book](https://daboross.gitbooks.io/screeps-starter-python/). Some of the other sections may be useful to read as well. In particular, keep in mind that the keys to all objects you create should be in quotes so that they properly get interpreted as strings rather than variables. Again, I can help in the #python channel of the Screeps Discord if you run into any issues.
+
+## Original Docs Follow:
 
 [![MIT licensed][mit-badge]][mit-url]
 [![Slack Chat][slack-badge]][slack-url]
