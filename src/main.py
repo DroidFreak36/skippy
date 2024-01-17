@@ -281,9 +281,12 @@ def main():
                     break
 
     
+    print(Game.cpu.getUsed())
+    
+    
     #It's likely that you won't fully utilize your CPU when starting out, so this will use your excess CPU to generate pixels that you can sell later.
     if Game.cpu.generatePixel and Game.cpu.bucket == 10000 and Game.cpu.getUsed() < Game.cpu.limit and ['shard0', 'shard1', 'shard2', 'shard3'].includes(Game.shard.name):
-        if Game.cpu.generatePixel == OK:
+        if Game.cpu.generatePixel() == OK:
             print(' ======= Generating pixel! Press F to pay respects to your bucket! ======= ')
 
 module.exports.loop = main

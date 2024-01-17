@@ -160,6 +160,7 @@ def worker_action(creep):
             creep.memory.target = creep.room.controller.id
             creep.memory.task = 'upgrading'
             target = creep.room.controller
+            creep.memory.check_delay = 0
         else:
             repair_structs = filter(lambda s: s.my and s.hits < s.hitsMax or [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(s.structureType) and s.hits * 2 < s.hitsMax, creep.room.find(FIND_STRUCTURES))
             if len(repair_structs) > 0:
@@ -167,6 +168,7 @@ def worker_action(creep):
                 if target != None:
                     creep.memory.target = target.id
                     creep.memory.task = 'repairing'
+                    creep.memory.check_delay = 0
                 else:
                     print('No path to repair structures for worker ' + creep.name)
             else:
@@ -176,12 +178,14 @@ def worker_action(creep):
                     if target != None:
                         creep.memory.target = target.id
                         creep.memory.task = 'building'
+                        creep.memory.check_delay = 0
                     else:
                         print('No path to construction sites for worker ' + creep.name)
                 else:
                     creep.memory.target = creep.room.controller.id
                     creep.memory.task = 'upgrading'
                     target = creep.room.controller
+                    creep.memory.check_delay = 0
     if creep.memory.task == 'upgrading' and target != None:
         if creep.pos.inRangeTo(target, 3):
             creep.upgradeController(target)
