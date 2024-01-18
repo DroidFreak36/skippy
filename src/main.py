@@ -150,7 +150,7 @@ def main():
             creep = Game.creeps[name]
             if creep.memory.role == 'worker' and Cache.rooms[creep.memory.target_room] != None:
                 Cache.rooms[creep.memory.target_room].current_work_parts += creep.getActiveBodyparts(WORK)
-            if creep.memory.role == 'hauler' and creep.ticksToLive > 150 and Cache.rooms[creep.memory.target_room] != None:
+            if creep.memory.role == 'hauler' and (creep.ticksToLive > 150 or creep.spawning) and Cache.rooms[creep.memory.target_room] != None:
                 Cache.rooms[creep.memory.target_room].current_carry_parts += creep.getActiveBodyparts(CARRY)
         
         #This number tracks how many total creeps have been spawned so far on this tick.
@@ -281,7 +281,6 @@ def main():
                     break
 
     
-    print(Game.cpu.getUsed())
     
     
     #It's likely that you won't fully utilize your CPU when starting out, so this will use your excess CPU to generate pixels that you can sell later.
