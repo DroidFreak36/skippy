@@ -94,6 +94,7 @@ class Configuration:
     :type password: str
     :type branch: str
     :type ptr: bool
+    :type season: bool
     """
 
     def __init__(self, base_dir, config_json, clean_build=True, flatten=False):
@@ -108,6 +109,7 @@ class Configuration:
         self.branch = config_json.get('branch', 'default')
         self.url = config_json.get('url', 'https://screeps.com')
         self.ptr = config_json.get('ptr', False)
+        self.season = config_json.get('season', False)
         self.enter_env = config_json.get('enter-env', True)
 
         self.clean_build = clean_build
@@ -298,6 +300,8 @@ def upload(config):
 
     if config.ptr:
         post_url = '{}/ptr/api/user/code'.format(config.url)
+    elif config.season:
+        post_url = '{}/season/api/user/code'.format(config.url)
     else:
         post_url = '{}/api/user/code'.format(config.url)
 
@@ -312,10 +316,20 @@ def upload(config):
 
     request = urllib.request.Request(post_url, post_data, headers)
     if config.url != 'https://screeps.com':
+        caveat = ''
+        if config.ptr:
+            caveat = ' on PTR'
+        elif config.season:
+            caveat = ' on seasonal'
         print("uploading files to {}, branch {}{}..."
-              .format(config.url, config.branch, " on PTR" if config.ptr else ""))
+              .format(config.url, config.branch, caveat))
     else:
-        print("uploading files to branch {}{}...".format(config.branch, " on PTR" if config.ptr else ""))
+        caveat = ''
+        if config.ptr:
+            caveat = ' on PTR'
+        elif config.season:
+            caveat = ' on seasonal'
+        print("uploading files to branch {}{}...".format(config.branch, caveat))
 
     # any errors will be thrown.
     with urllib.request.urlopen(request) as response:
@@ -533,7 +547,7 @@ def pre_patch(config):
             dest = os.path.join(patch_dir, name)
             shutil.copy2(source, dest)
     for file_name in os.listdir(patch_dir):
-        if not file_name in ['__pycache__', '__target__', 'defs']:
+        if not file_name in ['__pycache__', '__target__', 'defs'] and file_name[-3:] == '.py':
             file_str = None
             # there will be an error if there's non latin alphabet in the files when encoding is not set to utf8
             with open(os.path.join(patch_dir, file_name), 'r', encoding='utf8') as f:
