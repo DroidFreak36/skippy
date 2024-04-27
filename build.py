@@ -44,7 +44,7 @@ def possible_rollup_binary_paths(config):
     """
     npm = config.find_misc_executable('npm')
     if npm is None:
-        raise Exception("npm not found! tried paths: {}".format(possible_rollup_binary_paths(config)))
+        raise FileNotFoundError("npm not found!")
 
     args = [npm, 'bin']
     ran_npm = subprocess.run(args, capture_output=True, encoding='utf-8')
@@ -139,15 +139,21 @@ class Configuration:
 
     def find_misc_executable(self, file_base):
         """
-        Utility method to find a misc. executable file. Tries the basename and basename + '.exe' for Windows.
+        Utility method to find a misc. executable file. Tries the basename + '.cmd' and basename + '.exe' before the basename for Windows. Only tries the basename if not on Windows.
 
         :type file_base: str
         :rtype: str
         """
-        possible_paths = [
-            shutil.which(file_base),
-            shutil.which(file_base + '.exe'),
-        ]
+        if os.name == "nt":
+            possible_paths = [
+                shutil.which(file_base + '.cmd'),
+                shutil.which(file_base + '.exe'),
+                shutil.which(file_base),
+            ]
+        else:
+            possible_paths = [
+                shutil.which(file_base),
+            ]
         for path in possible_paths:
             if path is not None and os.path.exists(path):
                 return path
