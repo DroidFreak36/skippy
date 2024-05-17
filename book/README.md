@@ -6,6 +6,18 @@ This is my updated and streamlined version of daboross's screeps-starter-python 
 
 If you hop into the #python channel in the Screeps official Discord, I'll be happy to answer any questions there.
 
+## Setup Guide
+
+The first thing you need to do is to install Python (includeing IDLE, which is bundled with it by default on Windows) and Node.js (Including NPM, which is bundled with it. **MAKE SURE THAT YOU INSTALL NODE.JS VERSION 17.9.1, NEWER VERSIONS WILL NOT WORK.** New version of Python 3 work fine, as far as I know. I've used both 3.10 and 3.11 with no issues.
+
+Next, copy the repository to your local device one of a number of ways. My recommended way would probably be to install the GitHub desktop app and pull it that way, I've found it to be quite easy and convenient. The second method (and the one recommended by the original creator of the starter) is to install Git normally and run `git clone https://github.com/DroidFreak36/screeps_starter_python.git` in the folder you want to clone the repository into. If you want, you could also download the repository as a zip and unzip it locally.
+
+Next, you have to set up the config file. To push code to the official server, make a copy of `config.default.json` and name it `config.json`, then insert your auth token (generated through "Manage Account" in-game). For a private server, copy `config.private-server-example.json` into `config.json` instead and set up the settings as needed.
+
+Once the config is set up, open the `build.py` through IDLE (by right-clicking and selecting "Edit with IDLE" or by opening IDLE directly and opening the file through its menus. Once you have the file open in IDLE, use the run menu to run it. It will set up everything for you, and if it runs into any errors, it will tell you what they are in a useful format.
+
+Once you have the build working, take a look at the source code in the `src` subfolder, and start editing it into whatever you want. :3
+
 ## Changes
 
 In the version I forked from, it's often necessary to use Transcrypt pragmas to tell it to treat certain lines of code as raw Javascript, since those lines get removed or otherwise don't work otherwise. In my edited build.py, it pre-patches your code before Transcrypt to add those lines where it thinks you will need them. This may cause unexpected behavior in some cases, but it should make things much less clunky in the majority of cases. If you run into any cases where it doesn't work properly, let me know and I'll see what I can do about fixing that.
@@ -15,10 +27,6 @@ In addition to that pre-patching, it also patches up the JS code that Transcrypt
 The actual starter bot itself is replaced as well, being slightly more advanced, but still very much a starter. It will spawn three creep roles - miners, haulers, and workers. It will not place any structures, but it will build and maintain ones you place, as well as using extensions and source containers.
 
 ## Tips
-
-When following the setup guide, make sure you install version 17.9.1 of Node.js, not any newer version. Newer versions will not work because their version of NPM is not compatible. Also, when you get to the repository setup step, use this command instead to clone this repository rather than the parent:
-
-git clone https://github.com/DroidFreak36/screeps_starter_python.git
 
 Be sure to check the syntax changes part of [The Book](https://daboross.gitbooks.io/screeps-starter-python/). Some of the other sections may be useful to read as well. In particular, keep in mind that the keys to all objects you create should be in quotes so that they properly get interpreted as strings rather than variables. Again, I can help in the #python channel of the Screeps Discord if you run into any issues.
 
@@ -47,11 +55,6 @@ have time to generalize enough to include in the main transcrypt codebase.
 
 This repository is intended as a base to be used for building more complex AIs,
 and has all the tooling needed to transpile Python into JavaScript set up.
-
-## Install
-
-To get started, check out the [Setup
-Guide](https://daboross.gitbook.io/screeps-starter-python/logistics/setup).
 
 ## Docs
 
