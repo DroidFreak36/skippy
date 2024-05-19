@@ -281,12 +281,12 @@ def main():
         for room_name in Memory.owned_rooms:
             room = Game.rooms[room_name]
             if not room.memory.planned:
-                #while Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800 and not room.memory.planned:
-                #    print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
-                #    planning.plan_step(room.name, False)
-                if Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800:
+                while Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800 and not room.memory.planned:
                     print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
-                    planning.plan_step(room.name, True)
+                    planning.plan_step(room.name, False)
+                #if Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800:
+                #    print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
+                #    planning.plan_step(room.name, True)
         
         
         if Memory.master_map_visual_room:
