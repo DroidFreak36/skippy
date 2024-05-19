@@ -20,6 +20,16 @@ __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
 
+__pragma__ ('js', '{}', __include__ ('RoomVisual.js'))
+
+def _master_map_visuals(room_name):
+    if not room_name:
+        del Memory.master_map_visual_room
+    else:
+        Memory.master_map_visual_room = room_name
+
+__pragma__ ('js', '{}', 'global.master_map_visuals = _master_map_visuals')
+
 #====== Start of main code ======
 
 print(' ======= Global reset! Time of reset: ' + Game.time + ' ======= ')
@@ -277,6 +287,25 @@ def main():
                 if Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800:
                     print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
                     planning.plan_step(room.name, True)
+        
+        
+        if Memory.master_map_visual_room:
+            room = Game.rooms[Memory.master_map_visual_room]
+            if room:
+                plan_key = {'w':STRUCTURE_WALL, 'R':null, 'r':STRUCTURE_ROAD, 'c':STRUCTURE_CONTAINER, 'S':STRUCTURE_SPAWN, 'l':STRUCTURE_LINK, 'x':STRUCTURE_EXTENSION, 'T':STRUCTURE_TOWER, 'L':STRUCTURE_LAB, 's':STRUCTURE_STORAGE, 't':STRUCTURE_TERMINAL, 'F':STRUCTURE_FACTORY, 'P':STRUCTURE_POWER_SPAWN, 'N':STRUCTURE_NUKER, 'X':STRUCTURE_EXTRACTOR, 'O':STRUCTURE_OBSERVER, ' ':null, 'E':null, 'e':null, 'W':null, 'U':null}
+                for i in range(2500):
+                    char = room.memory.master_map[i]
+                    if char == 'R':
+                        room.visual.structure(i % 50, math.floor(i / 50), STRUCTURE_CONTAINER)
+                        room.visual.structure(i % 50, math.floor(i / 50), STRUCTURE_ROAD)
+                    elif char == 'U':
+                        room.visual.structure(i % 50, math.floor(i / 50), STRUCTURE_CONTAINER)
+                        room.visual.structure(i % 50, math.floor(i / 50), STRUCTURE_LINK)
+                    else:
+                        s_type = plan_key[char]
+                        if s_type:
+                            room.visual.structure(i % 50, math.floor(i / 50), s_type)
+                room.visual.connectRoads()
         
         
         #It's likely that you won't fully utilize your CPU when starting out, so this will use your excess CPU to generate pixels that you can sell later.
