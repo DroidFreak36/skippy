@@ -32,6 +32,8 @@ memory_time = Game.time
 
 #Initialize some parts of Memory if they are not initialized yet
 util.initialize_memory()
+creep_roles.init_cache()
+planning.init_cache()
 
 
 #This function turns the long creep body array into a shorter form for readability in the console
@@ -266,7 +268,15 @@ def main():
                         #If we got here without trying to spawn anything, skip the remaining spawns.
                         break
 
-        
+        for room_name in Memory.owned_rooms:
+            room = Game.rooms[room_name]
+            if not room.memory.planned:
+                #while Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800 and not room.memory.planned:
+                #    print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
+                #    planning.plan_step(room.name, False)
+                if Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800:
+                    print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
+                    planning.plan_step(room.name, True)
         
         
         #It's likely that you won't fully utilize your CPU when starting out, so this will use your excess CPU to generate pixels that you can sell later.

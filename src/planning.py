@@ -82,10 +82,10 @@ def init_cache():
     ]
 
 def plan_step(room_name, visuals_on):
-    if not room.memory.pd:
-        room.memory.pd = {}
     if Object.keys(Game.rooms).includes(room_name):
         room = Game.rooms[room_name]
+        if not room.memory.pd:
+            room.memory.pd = {}
         if not room.memory.planning_step:
             room.memory.planning_step = 0
         planning_function = Memory.planning_steps[room.memory.planning_step]
@@ -239,16 +239,12 @@ def orth_wall_fill(room, visuals_on):
             fill[i] = 0
         else:
             fill[i] = 255
-    for i in range(50):
-        for j in [i, 2450 + i, i * 50, i * 50 + 49]:
-            if fill[j] == 0:
-                fill[j] = -1
     steps = {}
     offset = [-50, -1, 1, 50]
     for x in range(50):
         for y in range(50):
             index = y * 50 + x
-            if not [' ','r'].includes(room.memory.master_map[i]):
+            if fill[index] == 255:
                 if x == 0:
                     for off in [-50, 1, 50]:
                         steps[index + off] = 1
@@ -312,7 +308,7 @@ def place_stamp(room, visuals_on):
     lowest_score = 9001
     
     for i in range(2500):
-        if room.memory.pd.orth_wall_fill[i] >= current_stamp_size:
+        if room.memory.pd.orth_wall_fill[i] >= current_stamp_size and room.memory.pd.orth_wall_fill[i] < 255:
             score = room.memory.pd.controller_fill[i] * 3
             for s_id in Object.keys(room.memory.pd.source_fills):
                 score += room.memory.pd.source_fills[s_id][i] * 2
