@@ -24,9 +24,9 @@ __pragma__('noalias', 'update')
 
 print(' ======= Global reset! Time of reset: ' + Game.time + ' ======= ')
 
-#Initial pulling of parsed memory into Cached memory
+#Initial pulling of parsed memory into cached memory
 util.parse_raw_memory()
-util.use_Cached_memory()
+util.use_cached_memory()
 memory_time = Game.time
 
 
