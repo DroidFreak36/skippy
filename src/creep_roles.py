@@ -14,13 +14,13 @@ __pragma__('noalias', 'update')
 
 #This function sets up a map that associates each creep role with a function.
 def init_cache():
-    Cache.role_map = {'miner': miner_action, 'hauler': hauler_action, 'worker': worker_action}
+    Memory.role_map = {'miner': miner_action, 'hauler': hauler_action, 'worker': worker_action}
 
 
 #This function is called for every creep, and redirects to that creep's role function using the map set up in init_cache().
 def do_action(creep):
     try:
-        role_function = Cache.role_map[creep.memory.role]
+        role_function = Memory.role_map[creep.memory.role]
         role_function(creep)
     except:
         print('No role function for creep ' + creep.name + ' with role ' + creep.memory.role + '!')
