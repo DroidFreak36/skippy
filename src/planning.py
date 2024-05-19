@@ -318,13 +318,22 @@ def place_stamp(room, visuals_on):
     if best_spot:
         if room.memory.pd.stamp_index == 0:
             room.memory.core = best_spot
-        anchor_x = best_spot & 50 - (current_stamp_size - 1)
+        anchor_x = best_spot % 50 - (current_stamp_size - 1)
         anchor_y = math.floor(best_spot / 50) - (current_stamp_size - 1)
         for i in range(len(current_stamp_layout)):
             for j in range(len(current_stamp_layout[i])):
                 x = anchor_x + j
                 y = anchor_y + i
-                room.memory.master_map[y * 50 + x] = current_stamp_layout[i][j]
+                if current_stamp_layout[i][j] != ' ':
+                    room.memory.master_map[y * 50 + x] = current_stamp_layout[i][j]
+    if visuals_on:
+        for i in range(2500):
+            if room.memory.pd.orth_wall_fill[i] < 255:
+                red = str(min(255, room.memory.pd.orth_wall_fill[i] * 25))
+                non_red = str(255 - min(255, room.memory.pd.orth_wall_fill[i] * 25))
+                room.visual.text(str(room.memory.pd.orth_wall_fill[i]), i % 50, math.floor(i / 50), {'font': '0.6 serif', 'color': 'rgb(' + red + ', ' + non_red + ', ' + non_red + ')'})
+    
+        room.visual.circle(best_spot % 50, math.floor(best_spot / 50), {'radius': 0.5, 'fill': '#ff0000'})
     room.memory.pd.stamp_index += 1
     if len(Memory.stamp_list) > room.memory.pd.stamp_index:
         room.memory.planning_step -= 1
