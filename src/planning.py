@@ -23,24 +23,25 @@ This planner uses singe characters to represent each structure type (or special 
 'W' - Natural wall
 'E' - Exclusion zone (where structures should not be placed)
 'e' - Special exclusion zone for controller container spots
+'U' - Link or container (for upgrade)
+'R' - Road and container
 'r' - Road
+'w' - Constructed wall
+'c' - Container
+'S' - Spawn
+'l' - Link
+'x' - Extensions
+'T' - Tower
+'L' - Lab
+'s' - Storage
+'t' - Terminal
+'F' - Factory
+'P' - Power spawn
+'N' - Nuker
+'X' - Extractor
+'O' - Observer
 
-'w':STRUCTURE_WALL
-'R':null
-'c':STRUCTURE_CONTAINER
-'S':STRUCTURE_SPAWN
-'l':STRUCTURE_LINK
-'x':STRUCTURE_EXTENSION
-'T':STRUCTURE_TOWER
-'L':STRUCTURE_LAB
-'s':STRUCTURE_STORAGE
-'t':STRUCTURE_TERMINAL
-'F':STRUCTURE_FACTORY
-'P':STRUCTURE_POWER_SPAWN
-'N':STRUCTURE_NUKER
-'X':STRUCTURE_EXTRACTOR
-'O':STRUCTURE_OBSERVER
-'U':null
+In this planner, maps are often used as sets, by setting the value of things that should be in the set to 1 and deleting (or never inserting) things that should not be in the set. This is for greater performance compared to lists, and because actual sets would likely not translate to JS very well. These maps-as-sets do translate well to JS and perform very well.
 
 """
 
@@ -117,19 +118,21 @@ def init_cache():
     ]
 
 def plan_step(room_name, visuals_on):
-    if Object.keys(Game.rooms).includes(room_name):
-        room = Game.rooms[room_name]
-        if not room.memory.pd:
-            room.memory.pd = {}
+    room = Game.rooms[room_name]
+    if room: #Failsafe in case we somehow attempt to plan a room we don't have vision on.
+        #Set planning step to the first step if it is not set
         if not room.memory.planning_step:
             room.memory.planning_step = 0
+        #Run the planning function as defined by the planning steps list in Memory.
         planning_function = Memory.planning_steps[room.memory.planning_step]
-        if planning_function(room, visuals_on):
+        if planning_function(room, visuals_on): #If the function returns a truthy value, move to the next step.
             room.memory.planning_step += 1
 
 def planning_start(room, visuals_on):
+    #Create the planning data object if it does not exist.
     if not room.memory.pd:
         room.memory.pd = {}
+    #Create the master map, initialized with the natural walls.
     terrain = room.getTerrain().getRawBuffer()
     room.memory.master_map = []
     for i in range(2500):
@@ -137,6 +140,7 @@ def planning_start(room, visuals_on):
             room.memory.master_map.append('W')
         else:
             room.memory.master_map.append(' ')
+    #Fill in an exclusion zone on the exits and the adjacent tiles.
     offset = [-51, -50, -49, -1, 1, 49, 50, 51]
     for i in range(50):
         for j in [i, 2450 + i, i * 50, i * 50 + 49]:
@@ -150,10 +154,12 @@ def planning_start(room, visuals_on):
 
 def source_fills(room, visuals_on):
     sources = room.find(FIND_SOURCES)
+    #Create the source fills object in planning data, if it doesn't exist.
     if not room.memory.pd.source_fills:
         room.memory.pd.source_fills = {}
     for source in sources:
-        if not room.memory.pd.source_fills[source.id]:
+        if not room.memory.pd.source_fills[source.id]: #Skips this source if it has already had the fill made for it.
+            #Initialize the fill to have 255 on the walls and zero elsewhere.
             fill = {}
             terrain = room.getTerrain().getRawBuffer()
             for i in range(2500):
@@ -161,27 +167,32 @@ def source_fills(room, visuals_on):
                     fill[i] = 255
                 else:
                     fill[i] = 0
+            #Exit tiles are set to -1 (to avoid going out of bounds later)
             for i in range(50):
                 for j in [i, 2450 + i, i * 50, i * 50 + 49]:
                     if fill[j] == 0:
                         fill[j] = -1
+            #Set the initial steps to the tiles adjacent to the source
             steps = {}
             source_index = source.pos.y * 50 + source.pos.x
             offset = [-51, -50, -49, -1, 1, 49, 50, 51]
             for off in offset:
                 steps[source_index + off] = 1
+            #The main flood fill loop
             for i in range(100):
-                next_steps = {}
-                for j in Object.keys(steps):
-                    if fill[j] == 0:
-                        fill[j] = i + 1
-                        for off in offset:
+                next_steps = {} #The steps set for the next iteration of the loop
+                for j in Object.keys(steps): #For every entry in the current steps
+                    if fill[j] == 0: #Zero means this tile is unfilled and not an exit.
+                        fill[j] = i + 1 #Set the tile
+                        for off in offset: #Add all adjacent tiles to the steps for the next iteration of the main loop
                             k = int(j) + off
                             next_steps[k] = 1
-                    elif fill[j] == -1:
-                        fill[j] = i + 1
+                    elif fill[j] == -1: #One means this tile is unfilled and is an exit.
+                        fill[j] = i + 1 #Set the tile
+                        #Translate the index to x and y, for ease of checking which exit we're next to.
                         x = j % 50
                         y = math.floor(j / 50)
+                        #Depending on which exit we're next to, add the tiles inside and adjacent to it to the steps for the next iteration of the main loop
                         if x == 0:
                             for off in [-49, 1, 51]:
                                 k = int(j) + off
@@ -198,8 +209,9 @@ def source_fills(room, visuals_on):
                             for off in [-51, -50, -49]:
                                 k = int(j) + off
                                 next_steps[k] = 1
-                steps = next_steps
-            room.memory.pd.source_fills[source.id] = fill
+                steps = next_steps #Set the steps set for the next iteration of the loop to the next steps set we constructed.
+            room.memory.pd.source_fills[source.id] = fill #Set the memory entry to the fill we created
+            #If visuals are on, render the flood fill values as colored numbers.
             if visuals_on:
                 for i in range(2500):
                     if fill[i] < 255:
