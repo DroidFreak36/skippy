@@ -11,8 +11,42 @@ __pragma__('noalias', 'set')
 __pragma__('noalias', 'type')
 __pragma__('noalias', 'update')
 
+"""
+
+General base planning module notes:
+
+The index values used at many points in this planner represent positions in the room with the relationship "i = y * 50 + x". This flattens the 2D space into 1D so arrays of length 2500 can be used to represent the whole room. This is also the same type of index the game uses internally for terrain data, as one can see by using "room.getTerrain().getRawBuffer()", which this planner uses any time it wants terrain data.
+
+This planner uses singe characters to represent each structure type (or special codes to represent special structures). The code are defined in Memory.plan_key (by the util module), except for the special codes, but here's a human-readable key that includes the special ones:
+
+' ' - Nothing
+'W' - Natural wall
+'E' - Exclusion zone (where structures should not be placed)
+'e' - Special exclusion zone for controller container spots
+'r' - Road
+
+'w':STRUCTURE_WALL
+'R':null
+'c':STRUCTURE_CONTAINER
+'S':STRUCTURE_SPAWN
+'l':STRUCTURE_LINK
+'x':STRUCTURE_EXTENSION
+'T':STRUCTURE_TOWER
+'L':STRUCTURE_LAB
+'s':STRUCTURE_STORAGE
+'t':STRUCTURE_TERMINAL
+'F':STRUCTURE_FACTORY
+'P':STRUCTURE_POWER_SPAWN
+'N':STRUCTURE_NUKER
+'X':STRUCTURE_EXTRACTOR
+'O':STRUCTURE_OBSERVER
+'U':null
+
+"""
+
 
 def init_cache():
+    #This lists the planning step functions in the order that they are executed (although steps can send the execution back to a previous step by editing the step counter, if needed).
     Memory.planning_steps = [
         planning_start,
         source_fills,
@@ -21,6 +55,7 @@ def init_cache():
         place_stamp,
         finalize
     ]
+    #This defines the stamps as 2D arrays, with the character codes that represent the structures in them.
     ff_stamp = [
         [' ',' ',' ',' ',' ','r'],
         [' ',' ',' ',' ','r','r','r'],

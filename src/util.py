@@ -167,4 +167,4 @@ def initialize_memory():
     Memory.remote_room_signs = [
         'boop'
     ]
-
+    Memory.plan_key = {'w':STRUCTURE_WALL, 'R':null, 'r':STRUCTURE_ROAD, 'c':STRUCTURE_CONTAINER, 'S':STRUCTURE_SPAWN, 'l':STRUCTURE_LINK, 'x':STRUCTURE_EXTENSION, 'T':STRUCTURE_TOWER, 'L':STRUCTURE_LAB, 's':STRUCTURE_STORAGE, 't':STRUCTURE_TERMINAL, 'F':STRUCTURE_FACTORY, 'P':STRUCTURE_POWER_SPAWN, 'N':STRUCTURE_NUKER, 'X':STRUCTURE_EXTRACTOR, 'O':STRUCTURE_OBSERVER, ' ':null, 'E':null, 'e':null, 'W':null, 'U':null}

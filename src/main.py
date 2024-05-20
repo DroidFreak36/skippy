@@ -292,7 +292,6 @@ def main():
         if Memory.master_map_visual_room:
             room = Game.rooms[Memory.master_map_visual_room]
             if room:
-                plan_key = {'w':STRUCTURE_WALL, 'R':null, 'r':STRUCTURE_ROAD, 'c':STRUCTURE_CONTAINER, 'S':STRUCTURE_SPAWN, 'l':STRUCTURE_LINK, 'x':STRUCTURE_EXTENSION, 'T':STRUCTURE_TOWER, 'L':STRUCTURE_LAB, 's':STRUCTURE_STORAGE, 't':STRUCTURE_TERMINAL, 'F':STRUCTURE_FACTORY, 'P':STRUCTURE_POWER_SPAWN, 'N':STRUCTURE_NUKER, 'X':STRUCTURE_EXTRACTOR, 'O':STRUCTURE_OBSERVER, ' ':null, 'E':null, 'e':null, 'W':null, 'U':null}
                 for i in range(2500):
                     char = room.memory.master_map[i]
                     if char == 'R':
@@ -302,7 +301,7 @@ def main():
                         room.visual.structure(i % 50, math.floor(i / 50), STRUCTURE_CONTAINER)
                         room.visual.structure(i % 50, math.floor(i / 50), STRUCTURE_LINK)
                     else:
-                        s_type = plan_key[char]
+                        s_type = Memory.plan_key[char]
                         if s_type:
                             room.visual.structure(i % 50, math.floor(i / 50), s_type)
                 room.visual.connectRoads()
