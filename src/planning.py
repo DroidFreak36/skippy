@@ -365,6 +365,8 @@ def place_stamp(room, visuals_on):
     if best_spot:
         if room.memory.pd.stamp_index == 0:
             room.memory.core = best_spot
+        if room.memory.pd.stamp_index = 2
+            room.memory.source_labs = [best_spot - 50, best_spot + 1]
         anchor_x = best_spot % 50 - (current_stamp_size - 1)
         anchor_y = math.floor(best_spot / 50) - (current_stamp_size - 1)
         for i in range(len(current_stamp_layout)):
