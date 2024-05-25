@@ -287,6 +287,8 @@ def main():
                 #if Game.cpu.tickLimit - Game.cpu.getUsed() > 200 and Game.cpu.bucket > 800:
                 #    print('Planning in ' + room.name + ' with step ' + room.memory.planning_step)
                 #    planning.plan_step(room.name, True)
+            else:
+                util.manage_building(room)
         
         
         if Memory.master_map_visual_room:

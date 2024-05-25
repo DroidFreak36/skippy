@@ -238,7 +238,7 @@ def update_current_map(room):
                     room.memory.current_map[j] = 'x'
                     placed['x'] += 1
                 elif room.memory.master_map[j] == 'R':
-                    if room.memory.current_map[j] == 'r'
+                    if room.memory.current_map[j] == 'r':
                         room.memory.current_map[j] = 'R'
                     else:
                         room.memory.current_map[j] = 'c'
