@@ -73,7 +73,7 @@ def serialize_memory():
     is_first_room = True
     number_persistent_room_keys = ['target_carry_parts', 'target_work_parts', 'core', 'lab_container', 'planned', 'built_rcl', 'built_amount', 'planned_rcl', 'planning_step']
     string_persistent_room_keys = []
-    json_persistent_room_keys = ['master_map', 'current_map']
+    json_persistent_room_keys = ['master_map', 'current_map', 'source_labs']
     if not Memory.owned_rooms:
         Memory.owned_rooms = []
         for room_name in Object.keys(Game.rooms):
