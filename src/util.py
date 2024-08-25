@@ -39,7 +39,7 @@ def string_to_array(in_string):
     __pragma__ ('js', '{}', "let out_array = in_string.split('')")
     return out_array
 
-#Serialize the oarts of our cached memory object that we want to persist into RawMemory
+#Serialize the parts of our cached memory object that we want to persist into RawMemory
 def serialize_memory():
     __pragma__ ('js', '{}', 'delete RawMemory._parsed;')
     
