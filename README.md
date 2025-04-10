@@ -7,7 +7,7 @@ skippy
 
 Automatic Base building,
 
-Auto Attacking,
+Auto defending of rooms/rebuilding of destroyed rooms,
 
 Advanced Creep roles,
 
